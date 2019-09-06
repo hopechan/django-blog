@@ -1,6 +1,7 @@
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from .models import Question
+from .models import Choice, Question
+from django.urls import reverse
 
 def index(request):
     #con [:5] toma las primeras 5 preguntas y en orden descendiente segun su fecha de publicacion
@@ -20,4 +21,12 @@ def resultados(request, question_id):
     return HttpResponse(response % question_id)
 
 def voto(request, question_id):
-    return HttpResponse("Estas votando en la pregunta %s. " % question_id)
+    pregunta = get_object_or_404(Question, pk=question_id)
+    try:
+        opcion_elegida = pregunta.choice_set.get(pk=request.POST['choice'])
+    except (KeyErro, Choice.DoesNotExist):
+        return render(request, 'polls/detalle.html', {'pregunta' : pregunta, 'mensaje_error' : 'No has elegido ninguna opcion'})
+    else:
+        opcion_elegida.votes += 1
+        opcion_elegida.save()
+        return HttpResponseRedirect(reverse('polls/resultados', args=(pregunta.id)))
