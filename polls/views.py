@@ -1,24 +1,22 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from .models import Choice, Question
 from django.urls import reverse
+from django.views import generic
+from .models import Choice, Question
 
-def index(request):
-    #con [:5] toma las primeras 5 preguntas y en orden descendiente segun su fecha de publicacion
-    preguntas_recientes = Question.objects.order_by('-pub_date')[:5]
-    #el preguntas recientes dentro de las comillas simples es la variable que se usa en el html
-    context = {
-        'preguntas_recientes' : preguntas_recientes
-    }
-    return render(request, 'polls/index.html', context)
+class IndexView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'preguntas_recientes'
+    def get_queryset(self):
+        return Question.objects.order_by('-pub_date')[:5]
 
-def detalle(request, question_id):
-    pregunta = get_object_or_404(Question, pk=question_id)
-    return render(request, 'polls/detalle.html', { 'pregunta' : pregunta })
+class DetalleView(generic.DetailView):
+    model = Question
+    template_name = 'polls/detalle.html'
 
-def resultados(request, question_id):
-    pregunta = get_object_or_404(Question, pk=question_id)
-    return render(request, 'polls/resultados.html', {'pregunta' : pregunta})
+class ResultadosView(generic.DetailView):
+    model = Question
+    template_name = 'polls/resultados.html'
 
 def voto(request, question_id):
     pregunta = get_object_or_404(Question, pk=question_id)
