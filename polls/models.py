@@ -10,7 +10,8 @@ class Question(models.Model):
         return self.question_text
 
     def publicada_recientemente(self):
-        return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
+        ahora = timezone.now()
+        return ahora - datetime.timedelta(days=1) <= self.pub_date <= ahora
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
