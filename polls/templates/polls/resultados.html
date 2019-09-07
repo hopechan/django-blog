@@ -1,7 +1,7 @@
-<h1>{{ pregunta.question_id }}</h1>
+<h1>{{ question.question_id }}</h1>
 <ul>
-{% for choice in pregunta.choice_set.all %}
+{% for choice in question.choice_set.all %}
     <li>{{ choice.choice_text }} -- {{ choice.votes }} voto{{ choice.votes|pluralize }}</li>
 {% endfor %}
 </ul>
-<a href="{% url 'polls:detalle' pregunta.id %}"></a>
+<a href="{% url 'polls:detalle' question.id %}"></a>
