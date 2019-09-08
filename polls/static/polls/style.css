@@ -1,0 +1,21 @@
+ul{
+    list-style-type: none;
+    padding: 0;  
+}
+
+li{
+    padding: 5px 10px;
+    background-color: #EEEEEE;
+    border: 1px solid #DDDDDD;
+    width: 25%;
+    margin-left: 35%;
+}
+
+li a{
+    color: green;
+    text-decoration: none;
+}
+
+body{
+    background: white url("images/background.jpg");
+}
