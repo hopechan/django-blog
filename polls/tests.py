@@ -43,6 +43,7 @@ class QuestionIndexViewTest(TestCase):
         crear_pregunta(question_text="¿Tienes hambre?", days=-5)
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(response.context['preguntas_recientes'], ['<Question: ¿Tienes hambre?>', '<Question: ¿Donde estudiastes?>'])
+
 class QuestionModelTest(TestCase):
     def test_se_publico_con_fecha_en_el_futuro(self):
         #se coloca una fecha adelantada 30 dias a la actual
@@ -61,3 +62,20 @@ class QuestionModelTest(TestCase):
         fecha_reciente = timezone.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
         pregunta_reciente = Question(pub_date=fecha_reciente)
         self.assertIs(pregunta_reciente.publicada_recientemente(), True)
+
+class QuestionDetailViewTest(TestCase):
+    def test_pregunta_futura(self):
+        #si la pregunta no ha sido publicada debe devolver un error 404
+        pregunta = crear_pregunta(question_text="¿Es esto una pregunta?", days=5)
+        url = reverse('polls:detalle', args=(pregunta.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_pregunta_pasada(self):
+        #si la fecha de publicacion ya ha pasado debe mostrar el texto de la pregunta
+        pregunta = crear_pregunta(question_text="Esto ya se publico", days=-8)
+        url = reverse('polls:detalle', args=(pregunta.id,))
+        response = self.client.get(url)
+        self.assertContains(response, pregunta.question_text)
+
+    

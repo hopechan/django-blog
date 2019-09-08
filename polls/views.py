@@ -16,6 +16,11 @@ class DetalleView(generic.DetailView):
     #model representa la variable que se utiliza en el html
     model = Question
     template_name = 'polls/detalle.html'
+    
+    def get_queryset(self):
+        #no incluye ningua pregunta que aun no ha sido publicada
+        return Question.objects.filter(pub_date__lte=timezone.now())
+    
 
 class ResultadosView(generic.DetailView):
     model = Question
