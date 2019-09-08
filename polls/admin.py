@@ -11,5 +11,6 @@ class QuestionAdmin(admin.ModelAdmin):
         ('Informacion de publicacion', {'fields': ['pub_date'], 'classes': ['collapse']}),
     ]
     inlines = [ChoiceInline]
+    list_display = ('question_text', 'pub_date', 'publicada_recientemente')
 
 admin.site.register(Question, QuestionAdmin)
