@@ -25,6 +25,7 @@ class DetalleView(generic.DetailView):
 class ResultadosView(generic.DetailView):
     model = Question
     template_name = 'polls/resultados.html'
+    
 
 def voto(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
