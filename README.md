@@ -4,8 +4,6 @@ _Tutorial basico de Django_
 
 ### Pre-requisitos 📋
 
-_Que cosas necesitas para instalar el software y como instalarlas_
-
 ```
 Docker 19.03.1 y docker-compose 1.24.1
 ```
