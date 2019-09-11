@@ -9,13 +9,13 @@ class Question(models.Model):
     def __str__(self):
         return self.question_text
 
-    def publicada_recientemente(self):
-        ahora = timezone.now()
-        return ahora - datetime.timedelta(days=1) <= self.pub_date <= ahora
+    def published_recently(self):
+        today = timezone.now()
+        return today - datetime.timedelta(days=1) <= self.pub_date <= today
     
-    publicada_recientemente.admin_order_field = 'pub_date'
-    publicada_recientemente.boolean = True
-    publicada_recientemente.short_description = '¿Se publicó recientemente?'
+    published_recently.admin_order_field = 'pub_date'
+    published_recently.boolean = True
+    published_recently.short_description = 'Was published recently?'
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)

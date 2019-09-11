@@ -1,27 +1,27 @@
 # Django Polls
 
-_Tutorial basico de Django_
+_Django Basic Tutorial_
 
-### Pre-requisitos 📋
-
-```
-Docker 19.03.1 y docker-compose 1.24.1
-```
-
-ó utilizar un entorno virtual
+### Pre-requirements 📋
 
 ```
-virtualenv nombre_de_tu_entorno -p python3
+Docker 19.03.1 and docker-compose 1.24.1
 ```
 
-Activar entorno virtual
+or use a virtual environment
 
 ```
-source nombre_entorno_virtual/bin/activate
+virtualenv environment_name -p python3
+```
+
+Activate virtual environment
+
+```
+source environment_name/bin/activate
 ```
 
 
-## Pruebas  ⚙️
+## Test ⚙️
 
 ```
 python manage.py test polls
@@ -29,13 +29,13 @@ python manage.py test polls
 
 ## Deployment 📦
 
-_Si se esta utilizando docker_
+_If you are using docker_
 
 ```
 docker-compose up --build
 ```
 
-_Si se esta utilizando un entorno virtual_
+_If you are using a virtual environment_
 
 ```
 python manage.py runserver
