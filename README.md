@@ -27,6 +27,48 @@ source environment_name/bin/activate
 python manage.py test polls
 ```
 
+##Database 
+
+Open postgres shell
+```
+psql -h localhost -U postgres -d postgres
+```
+
+Create a database
+```
+CREATE DATABASE pollsdb;
+```
+
+Create a new superuser
+
+```
+CREATE USER admin WITH PASSWORD '1234';
+```
+
+```
+ALTER ROLE admin SET client_encoding TO 'utf8';
+```
+
+```
+ALTER ROLE admin SET default_transaction_isolation TO 'read committed';
+```
+
+```
+ALTER ROLE admin SET timezone TO 'UTC';
+```
+
+Give access rights to the database
+
+```
+GRANT ALL PRIVILEGES ON DATABASE pollsdb TO admin;
+```
+
+Exit postgres shell
+
+```
+exit
+```
+
 ## Deployment 📦
 
 _If you are using docker_
@@ -40,3 +82,22 @@ _If you are using a virtual environment_
 ```
 python manage.py runserver
 ```
+
+## Migrations 📦
+
+```
+python manage.py migrate
+```
+
+```
+python manage.py makemigrations polls
+```
+
+```
+python manage.py sqlmigrate polls 0001
+```
+
+```
+python manage.py migrate
+```
+
