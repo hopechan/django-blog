@@ -4,78 +4,71 @@ from django.urls import reverse
 from django.utils import timezone
 from .models import Question
 
-def crear_pregunta(question_text, days):
-    fecha = timezone.now() + datetime.timedelta(days=days)
-    return Question.objects.create(question_text = question_text, pub_date = fecha)
+def create_question(question_text, days):
+    date = timezone.now() + datetime.timedelta(days=days)
+    return Question.objects.create(question_text = question_text, pub_date = date)
 
 class QuestionIndexViewTest(TestCase):
-    def test_sin_preguntas(self):
-        #Si no existen preguntas debe lanzar un mensaje de error, sino lanza un codigo de estado
+    def test_no_questions(self):
+        #If there are no questions it should launch an error message, otherwise launch a status code
         response = self.client.get(reverse('polls:index'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No hay preguntas disponibles.")
-        self.assertQuerysetEqual(response.context['preguntas_recientes'], [])
+        self.assertContains(response, "No questions available.")
+        self.assertQuerysetEqual(response.context['published_recently'], [])
 
-    def test_preguntas_antiguas(self):
-        #se deben mostrar preguntas con fechas de publicacion antiguas
-        crear_pregunta(question_text="¿Qué hiciste en abril?", days=-30)
+    def test_past_question(self):
+        #questions with old publication dates should be posted
+        create_question(question_text="What did you do in April?", days=-30)
         response = self.client.get(reverse('polls:index'))
-        self.assertQuerysetEqual(response.context['preguntas_recientes'], ['<Question: ¿Qué hiciste en abril?>'])
+        self.assertQuerysetEqual(response.context['published_recently'], ['<Question: What did you do in April?>'])
     
-    def test_preguntas_futuras(self):
-        #Preguntas que su fecha de publicacion esta adelantada a la fecha actual no se muestran
-        crear_pregunta(question_text="¿Fuiste a ver el desfile del 15 de septiembre?", days=30)
+    def test_future_question(self):
+        #questions with recent publication dates should not be posted
+        create_question(question_text="Did you go to see the September 15 parade?", days=30)
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, "No hay preguntas disponibles.")
-        self.assertQuerysetEqual(response.context['preguntas_recientes'], [])
+        self.assertContains(response, "No questions available.")
+        self.assertQuerysetEqual(response.context['published_recently'], [])
 
-    def test_preguntas_pasadas_y_futuras(self):
-        #si hay preguntas con fecha de publicacion pasada y adelantas a la fecha actual 
-        #solo se muestran la que ya pasaron
-        crear_pregunta(question_text="¿Como estuvieron las vacaciones?", days=-30)
-        crear_pregunta(question_text="¿Ya viste la pelicula de Joker?", days=30)
+    def test_future_question_and_past_question(self):
+        #if there are questions with previous date of publication and forward to the current date only show those that already passed
+        create_question(question_text="How was your vacation?", days=-30)
+        create_question(question_text="Have you seen this movie?", days=30)
         response = self.client.get(reverse('polls:index'))
-        self.assertQuerysetEqual(response.context['preguntas_recientes'], ['<Question: ¿Como estuvieron las vacaciones?>'])
+        self.assertQuerysetEqual(response.context['published_recently'], ['<Question: How was your vacation?>'])
 
-    def test_dos_preguntas_antiguas(self):
-        #la pagina principal debe mostrar varias preguntas
-        crear_pregunta(question_text="¿Donde estudiastes?", days=-30)
-        crear_pregunta(question_text="¿Tienes hambre?", days=-5)
-        response = self.client.get(reverse('polls:index'))
-        self.assertQuerysetEqual(response.context['preguntas_recientes'], ['<Question: ¿Tienes hambre?>', '<Question: ¿Donde estudiastes?>'])
+    def test_two_past_questions(self):
+        create_question(question_text="Where did you study?", days=-30)
+        create_question(question_text="Are you hungry?", days=-5)
+        response = self.client.get(reverse('polls:index')) 
+        self.assertQuerysetEqual(response.context['published_recently'], ['<Question: Are you hungry?>', '<Question: Where did you study?>'])
 
 class QuestionModelTest(TestCase):
-    def test_se_publico_con_fecha_en_el_futuro(self):
-        #se coloca una fecha adelantada 30 dias a la actual
-        fecha_adelantada = timezone.now() + datetime.timedelta(days=30)
-        #se le asigna la fecha adelantada a la propiedad pub_date de un objeto Question
-        pregunta = Question(pub_date=fecha_adelantada)
-        self.assertIs(pregunta.publicada_recientemente(), False)
+    def test_was_published_recently_with_future_question(self):
+        future_question = timezone.now() + datetime.timedelta(days=30)
+        question = Question(pub_date=future_question)
+        self.assertIs(question.published_recently(), False)
 
-    def test_se_publico_en_el_pasado(self):
-        #a la fecha actual se le resta 1 dia con 1 segundo
-        fecha_atrasada = timezone.now() - datetime.timedelta(days=1, seconds=1)
-        pregunta_antigua = Question(pub_date=fecha_atrasada)
-        self.assertIs(pregunta_antigua.publicada_recientemente(), False)
+    def test_was_published_recently_with_old_question(self):
+        #the current date is taken 1 day with 1 second
+        past_date = timezone.now() - datetime.timedelta(days=1, seconds=1)
+        old_question = Question(pub_date=past_date)
+        self.assertIs(old_question.published_recently(), False)
 
-    def test_se_publico_recientemente(self):
-        fecha_reciente = timezone.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
-        pregunta_reciente = Question(pub_date=fecha_reciente)
-        self.assertIs(pregunta_reciente.publicada_recientemente(), True)
+    def test_was_published_recently(self):
+        now = timezone.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
+        recent_question = Question(pub_date=now)
+        self.assertIs(recent_question.published_recently(), True)
 
 class QuestionDetailViewTest(TestCase):
-    def test_pregunta_futura(self):
-        #si la pregunta no ha sido publicada debe devolver un error 404
-        pregunta = crear_pregunta(question_text="¿Es esto una pregunta?", days=5)
-        url = reverse('polls:detalle', args=(pregunta.id,))
+    def test_future_question(self):
+        question = create_question(question_text="Is this a question?", days=5)
+        url = reverse('polls:detail', args=(question.id,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
     def test_pregunta_pasada(self):
         #si la fecha de publicacion ya ha pasado debe mostrar el texto de la pregunta
-        pregunta = crear_pregunta(question_text="Esto ya se publico", days=-8)
-        url = reverse('polls:detalle', args=(pregunta.id,))
+        question = create_question(question_text="Is this a question?", days=-8)
+        url = reverse('polls:detail', args=(question.id,))
         response = self.client.get(url)
-        self.assertContains(response, pregunta.question_text)
-
-    
+        self.assertContains(response, question.question_text)
