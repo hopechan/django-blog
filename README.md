@@ -5,7 +5,7 @@ _Django Basic Tutorial_
 ### Pre-requirements 📋
 
 ```
-Docker 19.03.1 and docker-compose 1.24.1
+Docker 19.03.1, docker-compose 1.24.1 and postgresql 9.5
 ```
 
 or use a virtual environment
